@@ -1,66 +1,100 @@
-# tpl-be-springboot
+# BE Lab 01 - Tipo de Cambio Perú (Spring Boot)
 
-Plantilla base para laboratorios de Backend con **Spring Boot 4.0.3** y **Java 25**.
-
-Incluye:
-- **Swagger UI** para explorar y probar la API desde el navegador
-- Endpoint **Ping** para verificar que el servicio está vivo
+## 0) Objetivo
+Implementar un endpoint **GET** que devuelva el tipo de cambio USD→PEN por fecha, usando **data en memoria**.
 
 ---
 
-## Requisitos
-- **Java 25** instalado y configurado (JDK)
-- Git
-- No necesitas Maven instalado: el proyecto usa **Maven Wrapper** (`mvnw.cmd`)
-
-> Si `.\mvnw.cmd -v` muestra Java 17 u otra versión, tu sistema/IDE no está usando Java 25.
-
----
-
-## Ejecutar el proyecto (Windows)
-En la raíz del proyecto:
+## 1) Levanta el proyecto
+En la raíz del repo:
 
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-El servicio levanta por defecto en:
-- http://localhost:8080
+Verifica que funciona:
+- Ping: `GET http://localhost:8080/api/v1/ping`
+- Swagger: `http://localhost:8080/swagger-ui/index.html`
 
 ---
 
-## Probar rápido
+## 2) Crea estos 3 archivos (y solo estos 3)
+> Respeta los paquetes/rutas tal cual.
 
-### Ping (sanity check)
-- Endpoint: **GET** http://localhost:8080/api/v1/ping
-- Respuesta esperada:
+### A) DTO de respuesta
+**Archivo:** `src/main/java/pe/incubadora/backend/api/TipoCambioResponse.java`
+
+Debe tener estos campos:
+- `fecha` (String)
+- `compra` (double)
+- `venta` (double)
+- `fuente` (String)
+
+---
+
+### B) Servicio con data en memoria (aquí “cargas” la data)
+**Archivo:** `src/main/java/pe/incubadora/backend/application/TipoCambioService.java`
+
+Debe tener un `Map<LocalDate, TipoCambioResponse>` con al menos **3 fechas precargadas**, por ejemplo:
+- `2026-02-18`
+- `2026-02-19`
+- `2026-02-20`
+
+Y un método:
+- `TipoCambioResponse getByFecha(LocalDate fecha)`
+
+---
+
+### C) Controller del endpoint GET
+**Archivo:** `src/main/java/pe/incubadora/backend/api/TipoCambioController.java`
+
+Debe exponer:
+
+- `GET /api/v1/tipo-cambio/{fecha}`
+- `fecha` con formato `yyyy-MM-dd`
+
+Comportamiento:
+- Si `fecha` es inválida → **400** con un JSON de error
+- Si no hay data para esa fecha → **404** con un JSON de error
+- Si existe → **200** con la respuesta
+
+---
+
+## 3) Contrato del endpoint (lo que debe devolver)
+
+### 200 OK
+`GET http://localhost:8080/api/v1/tipo-cambio/2026-02-20`
 
 ```json
-{ "status": "ok" }
+{
+  "fecha": "2026-02-20",
+  "compra": 3.72,
+  "venta": 3.76,
+  "fuente": "INTERNO"
+}
 ```
 
----
+### 400 Bad Request (fecha inválida)
+Ejemplo:
+- `GET /api/v1/tipo-cambio/hoy`
 
-## Swagger / OpenAPI
+Debe devolver JSON con:
+- `code`: `VALIDATION_ERROR`
+- `message`: `Fecha inválida. Use formato yyyy-MM-dd`
 
-### Swagger UI (interfaz web)
-Abre en el navegador:
-- http://localhost:8080/swagger-ui/index.html
+### 404 Not Found (sin data)
+Ejemplo:
+- `GET /api/v1/tipo-cambio/2026-01-01`
 
-### OpenAPI JSON
-- http://localhost:8080/v3/api-docs
-
----
-
-## Convenciones de trabajo
-- No trabajes directo en `main`. Crea una rama:
-  - `feat/<algo-corto>` (ej. `feat/tipo-cambio-get`)
-- Commits pequeños y claros.
-- Entrega por Pull Request (PR).
+Debe devolver JSON con:
+- `code`: `TC_NOT_FOUND`
+- `message`: `No existe tipo de cambio para la fecha 2026-01-01`
 
 ---
 
-## Checklist antes de entregar
+## Checklist
 - [ ] El proyecto arranca con `.\mvnw.cmd spring-boot:run`
-- [ ] Swagger UI abre: http://localhost:8080/swagger-ui/index.html
-- [ ] Ping responde: **GET** http://localhost:8080/api/v1/ping
+- [ ] Swagger abre: `http://localhost:8080/swagger-ui/index.html`
+- [ ] `GET /api/v1/tipo-cambio/2026-02-20` responde 200
+- [ ] Fecha inválida responde 400
+- [ ] Fecha sin data responde 404
