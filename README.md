@@ -18,7 +18,7 @@ Verifica que funciona:
 
 ---
 
-## 2) Crea estos 3 archivos (y solo estos 3)
+## 2) Crea estos 3 archivos
 > Respeta los paquetes/rutas tal cual.
 
 ### A) DTO de respuesta
@@ -32,7 +32,7 @@ Debe tener estos campos:
 
 ---
 
-### B) Servicio con data en memoria (aquí “cargas” la data)
+### B) Servicio con data en memoria
 **Archivo:** `src/main/java/pe/incubadora/backend/application/TipoCambioService.java`
 
 Debe tener un `Map<LocalDate, TipoCambioResponse>` con al menos **3 fechas precargadas**, por ejemplo:
@@ -60,7 +60,7 @@ Comportamiento:
 
 ---
 
-## 3) Contrato del endpoint (lo que debe devolver)
+## 3) Contrato del endpoint
 
 ### 200 OK
 `GET http://localhost:8080/api/v1/tipo-cambio/2026-02-20`
@@ -74,7 +74,7 @@ Comportamiento:
 }
 ```
 
-### 400 Bad Request (fecha inválida)
+### 400 Bad Request
 Ejemplo:
 - `GET /api/v1/tipo-cambio/hoy`
 
@@ -82,7 +82,7 @@ Debe devolver JSON con:
 - `code`: `VALIDATION_ERROR`
 - `message`: `Fecha inválida. Use formato yyyy-MM-dd`
 
-### 404 Not Found (sin data)
+### 404 Not Found
 Ejemplo:
 - `GET /api/v1/tipo-cambio/2026-01-01`
 
